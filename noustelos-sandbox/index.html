@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SANDBOX Experiments</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --text: #111111;
+        --muted: #5c5c5c;
+        --line: #dcdcdc;
+        --link-bg: #f8f8f8;
+        --link-hover: #efefef;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+
+      .home {
+        width: min(780px, 100%);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.3rem, 2.1vw, 1.8rem);
+      }
+
+      p {
+        margin: 0.65rem 0 1.4rem;
+        color: var(--muted);
+      }
+
+      .links {
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      a {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: var(--link-bg);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        transition: background 180ms ease, transform 180ms ease;
+      }
+
+      a:hover {
+        background: var(--link-hover);
+        transform: translateY(-1px);
+      }
+
+      .label {
+        display: block;
+        font-weight: 600;
+      }
+
+      .path {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="home">
+      <h1>SANDBOX Experiments</h1>
+      <p>Συγκέντρωση demos για δοκιμές πριν τα περάσουμε σε production κώδικα.</p>
+
+      <section class="links">
+        <a href="../experiments/Scroll-Transition/index.html">
+          <span class="label">index.html</span>
+          <span class="path">experiments/Scroll-Transition/index.html</span>
+        </a>
+
+        <a href="../experiments/Scroll-Transition/index2.html">
+          <span class="label">index2.html</span>
+          <span class="path">experiments/Scroll-Transition/index2.html</span>
+        </a>
+
+        <a href="../experiments/Scroll-Transition/index3.html">
+          <span class="label">index3.html</span>
+          <span class="path">experiments/Scroll-Transition/index3.html</span>
+        </a>
+
+        <a href="../experiments/Scroll-Transition/index4.html">
+          <span class="label">index4.html</span>
+          <span class="path">experiments/Scroll-Transition/index4.html</span>
+        </a>
+
+        <a href="./sandbox.html">
+          <span class="label">sandbox.html</span>
+          <span class="path">noustelos-sandbox/sandbox.html</span>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>

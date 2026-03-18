@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Scroll-Transition (local server)",
+			"type": "shell",
+			"command": "python3",
+			"args": [
+				"-m",
+				"http.server",
+				"5500",
+				"--directory",
+				"experiments/Scroll-Transition"
+			],
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}

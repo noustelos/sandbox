@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atmospheric Depth Gallery</title>
+    <style>
+      :root {
+        --text: #f4f4f4;
+        --bg: #7d936e;
+        --blob1: #fdd895;
+        --blob2: #a5b599;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        overflow: hidden;
+        color: var(--text);
+        font-family:
+          "IBM Plex Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background:
+          radial-gradient(48vmax 35vmax at 20% 78%, var(--blob1) 0%, transparent 60%),
+          radial-gradient(40vmax 28vmax at 75% 18%, var(--blob2) 0%, transparent 62%),
+          linear-gradient(180deg, color-mix(in srgb, var(--bg) 84%, #ffffff 16%), var(--bg));
+        transition:
+          color 520ms ease,
+          background 620ms ease;
+      }
+
+      .grain {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 40;
+        opacity: 0.085;
+        background-image: radial-gradient(circle at 1px 1px, #fff 1px, transparent 0);
+        background-size: 4px 4px;
+        mix-blend-mode: soft-light;
+      }
+
+      .frame {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        pointer-events: none;
+        padding: 1.2rem;
+      }
+
+      .frame__title {
+        margin: 0;
+        max-width: 38ch;
+        font-size: 0.82rem;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .hint {
+        position: fixed;
+        right: 1.2rem;
+        top: 1.2rem;
+        z-index: 80;
+        margin: 0;
+        font-size: 0.64rem;
+        opacity: 0.82;
+        pointer-events: none;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        pointer-events: none;
+      }
+
+      .overlay__left {
+        position: absolute;
+        left: clamp(1.2rem, 6vw, 7rem);
+        top: 50%;
+        display: grid;
+        gap: 0.72rem;
+      }
+
+      .chip {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+
+      .overlay__index {
+        margin: 0;
+        font-size: 0.58rem;
+      }
+
+      .overlay__right {
+        position: absolute;
+        right: clamp(1.2rem, 6vw, 7rem);
+        top: 50%;
+      }
+
+      .card {
+        margin: 0;
+        width: min(28vw, 360px);
+      }
+
+      .word {
+        margin: 0 0 0.5rem;
+        font-size: clamp(0.56rem, 0.78vw, 0.7rem);
+      }
+
+      .spec {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 3.7rem 1fr;
+        gap: 0.8rem;
+      }
+
+      .spec dt,
+      .spec dd {
+        margin: 0;
+        font-size: clamp(0.56rem, 0.72vw, 0.66rem);
+      }
+
+      .webgl {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      @media (max-width: 53em) {
+        .frame {
+          padding: 1rem;
+        }
+
+        .frame__title {
+          max-width: 32ch;
+          font-size: 0.73rem;
+        }
+
+        .hint {
+          display: none;
+        }
+
+        .overlay {
+          inset: auto 0 max(5.7rem, env(safe-area-inset-bottom)) 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          column-gap: 1.2rem;
+          padding: 0 max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left));
+          align-items: start;
+        }
+
+        .overlay__left,
+        .overlay__right {
+          position: static;
+        }
+
+        .card {
+          width: auto;
+          max-width: min(58vw, 270px);
+        }
+
+        .spec {
+          grid-template-columns: 2.8rem 1fr;
+          gap: 0.55rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas class="webgl" aria-hidden="true"></canvas>
+
+    <header class="frame">
+      <h1 class="frame__title">Atmospheric Depth Gallery - Scroll για navigation, κίνηση ποντικιού για parallax.</h1>
+    </header>
+    <p class="hint">wheel / trackpad / arrows</p>
+
+    <section class="overlay" aria-live="polite">
+      <div class="overlay__left">
+        <p class="overlay__index" id="overlay-index">01</p>
+        <span class="chip" id="overlay-chip"></span>
+      </div>
+      <div class="overlay__right card">
+        <p class="word" id="overlay-word">golden</p>
+        <dl>
+          <div class="spec">
+            <dt>rgb</dt>
+            <dd id="overlay-rgb">0, 0, 0</dd>
+          </div>
+          <div class="spec">
+            <dt>hex</dt>
+            <dd id="overlay-hex">#000000</dd>
+          </div>
+          <div class="spec">
+            <dt>pms</dt>
+            <dd id="overlay-pms">PMS N/A</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <div class="grain" aria-hidden="true"></div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+
+      const galleryData = [
+        {
+          texture: "./assets/gallery/flower-01.webp",
+          fallbackColor: "#feca4f",
+          accentColor: "#feca4f",
+          backgroundColor: "#fffaf0",
+          blob1Color: "#ffdf94",
+          blob2Color: "#fce7c4",
+          label: { word: "golden", pms: "PMS 135 C", color: "#2e2e2e" },
+          x: -0.9,
+        },
+        {
+          texture: "./assets/gallery/flower-02.webp",
+          fallbackColor: "#80455a",
+          accentColor: "#80455a",
+          backgroundColor: "#fffaf0",
+          blob1Color: "#d29a41",
+          blob2Color: "#bb96af",
+          label: { word: "violet", pms: "PMS 4985 C", color: "#2e2e2e" },
+          x: 0.8,
+        },
+        {
+          texture: "./assets/gallery/flower-03.webp",
+          fallbackColor: "#fa7b71",
+          accentColor: "#fa7b71",
+          backgroundColor: "#5f81ab",
+          blob1Color: "#f88b8d",
+          blob2Color: "#cfbbdd",
+          label: { word: "afterglow", pms: "PMS 170 C", color: "#f4f4f4" },
+          x: -0.7,
+        },
+        {
+          texture: "./assets/gallery/flower-04.webp",
+          fallbackColor: "#3c72c6",
+          accentColor: "#3c72c6",
+          backgroundColor: "#5b9bc2",
+          blob1Color: "#ffaa00",
+          blob2Color: "#00e1ff",
+          label: { word: "cobalt", pms: "PMS 660 C", color: "#f4f4f4" },
+          x: 1.0,
+        },
+        {
+          texture: "./assets/gallery/flower-05.webp",
+          fallbackColor: "#fdd895",
+          accentColor: "#fdd895",
+          backgroundColor: "#7d936e",
+          blob1Color: "#fdd895",
+          blob2Color: "#a5b599",
+          label: { word: "meadow", pms: "PMS 7507 C", color: "#f4f4f4" },
+          x: -0.7,
+        },
+      ];
+
+      const planeGap = 5;
+      const cameraStartZ = 1.3;
+      const cameraEndZ = -(galleryData.length - 1) * planeGap - 1.6;
+      const mobileBreakpoint = 768;
+
+      const canvas = document.querySelector(".webgl");
+      const overlayIndex = document.getElementById("overlay-index");
+      const overlayChip = document.getElementById("overlay-chip");
+      const overlayWord = document.getElementById("overlay-word");
+      const overlayRgb = document.getElementById("overlay-rgb");
+      const overlayHex = document.getElementById("overlay-hex");
+      const overlayPms = document.getElementById("overlay-pms");
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 90);
+      camera.position.set(0, 0, cameraStartZ);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      const loader = new THREE.TextureLoader();
+      const planeGeometry = new THREE.PlaneGeometry(3, 3);
+      const planes = [];
+
+      function isMobile() {
+        return window.innerWidth <= mobileBreakpoint;
+      }
+
+      function toRgbString(hex) {
+        const color = new THREE.Color(hex);
+        const r = Math.round(color.r * 255);
+        const g = Math.round(color.g * 255);
+        const b = Math.round(color.b * 255);
+        return `${r}, ${g}, ${b}`;
+      }
+
+      function mixHex(colorA, colorB, t) {
+        const a = new THREE.Color(colorA);
+        const b = new THREE.Color(colorB);
+        a.lerp(b, t);
+        return `#${a.getHexString()}`;
+      }
+
+      function getDepthState(z) {
+        const normalized = THREE.MathUtils.clamp((0 - z) / planeGap, 0, galleryData.length - 1);
+        const current = Math.floor(normalized);
+        const next = Math.min(current + 1, galleryData.length - 1);
+        const blend = normalized - current;
+        return { normalized, current, next, blend };
+      }
+
+      function updateOverlay(z) {
+        const depth = getDepthState(z);
+        const active = galleryData[depth.current];
+        const next = galleryData[depth.next];
+
+        const accent = mixHex(active.accentColor, next.accentColor, depth.blend);
+        const bg = mixHex(active.backgroundColor, next.backgroundColor, depth.blend);
+        const blob1 = mixHex(active.blob1Color, next.blob1Color, depth.blend);
+        const blob2 = mixHex(active.blob2Color, next.blob2Color, depth.blend);
+
+        document.body.style.setProperty("--text", active.label.color);
+        document.body.style.setProperty("--bg", bg);
+        document.body.style.setProperty("--blob1", blob1);
+        document.body.style.setProperty("--blob2", blob2);
+
+        overlayIndex.textContent = String(depth.current + 1).padStart(2, "0");
+        overlayChip.style.backgroundColor = accent;
+        overlayWord.textContent = active.label.word;
+        overlayRgb.textContent = toRgbString(accent);
+        overlayHex.textContent = accent;
+        overlayPms.textContent = active.label.pms;
+      }
+
+      async function createPlanes() {
+        const textures = await Promise.all(
+          galleryData.map(
+            (item) =>
+              new Promise((resolve) => {
+                loader.load(
+                  item.texture,
+                  (texture) => {
+                    texture.colorSpace = THREE.SRGBColorSpace;
+                    resolve(texture);
+                  },
+                  undefined,
+                  () => resolve(null)
+                );
+              })
+          )
+        );
+
+        galleryData.forEach((item, index) => {
+          const texture = textures[index];
+          const ratio = texture?.image?.width && texture?.image?.height ? texture.image.width / texture.image.height : 1;
+
+          const material = new THREE.MeshBasicMaterial({
+            color: texture ? "#ffffff" : item.fallbackColor,
+            map: texture,
+            transparent: true,
+            depthWrite: false,
+            opacity: index === 0 ? 1 : 0.05,
+            side: THREE.DoubleSide,
+          });
+
+          const plane = new THREE.Mesh(planeGeometry, material);
+          const scale = isMobile() ? 0.65 : 1;
+          plane.scale.set(scale * ratio, scale, 1);
+          plane.position.set(item.x * (isMobile() ? 0.25 : 1), 0, -index * planeGap);
+
+          plane.userData.baseX = item.x;
+          plane.userData.ratio = ratio;
+          scene.add(plane);
+          planes.push(plane);
+        });
+      }
+
+      const pointerTarget = new THREE.Vector2(0, 0);
+      const pointerCurrent = new THREE.Vector2(0, 0);
+      let targetCameraZ = cameraStartZ;
+      let cameraVelocity = 0;
+
+      window.addEventListener("pointermove", (event) => {
+        const x = (event.clientX / window.innerWidth) * 2 - 1;
+        const y = (event.clientY / window.innerHeight) * 2 - 1;
+        pointerTarget.set(x, -y);
+      });
+
+      window.addEventListener("pointerleave", () => pointerTarget.set(0, 0));
+
+      window.addEventListener(
+        "wheel",
+        (event) => {
+          targetCameraZ -= event.deltaY * 0.016;
+          targetCameraZ = THREE.MathUtils.clamp(targetCameraZ, cameraEndZ, cameraStartZ);
+        },
+        { passive: true }
+      );
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown") {
+          targetCameraZ -= 0.95;
+        }
+        if (event.key === "ArrowUp") {
+          targetCameraZ += 0.95;
+        }
+        targetCameraZ = THREE.MathUtils.clamp(targetCameraZ, cameraEndZ, cameraStartZ);
+      });
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const spread = isMobile() ? 0.25 : 1;
+        const scale = isMobile() ? 0.65 : 1;
+        planes.forEach((plane) => {
+          plane.position.x = plane.userData.baseX * spread;
+          plane.scale.set(scale * plane.userData.ratio, scale, 1);
+        });
+      });
+
+      function animate() {
+        pointerCurrent.lerp(pointerTarget, 0.08);
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCameraZ, 0.09);
+        cameraVelocity = THREE.MathUtils.lerp(cameraVelocity, targetCameraZ - camera.position.z, 0.08);
+
+        const depth = getDepthState(camera.position.z);
+        updateOverlay(camera.position.z);
+
+        planes.forEach((plane, index) => {
+          const distance = Math.abs(depth.normalized - index);
+          const fade = THREE.MathUtils.clamp(1 - distance * 0.85, 0.02, 1);
+          plane.material.opacity = fade;
+
+          const depthGain = index / Math.max(1, planes.length - 1);
+          const driftX = pointerCurrent.x * (0.09 + depthGain * 0.07);
+          const driftY = pointerCurrent.y * (0.07 + depthGain * 0.05);
+          const breath = Math.sin(performance.now() * 0.001 + index * 0.7) * 0.018;
+
+          const spread = isMobile() ? 0.25 : 1;
+          plane.position.x = THREE.MathUtils.lerp(
+            plane.position.x,
+            plane.userData.baseX * spread + driftX,
+            0.08
+          );
+          plane.position.y = THREE.MathUtils.lerp(plane.position.y, driftY + breath, 0.08);
+
+          plane.rotation.x = THREE.MathUtils.lerp(plane.rotation.x, -pointerCurrent.y * 0.045, 0.08);
+          plane.rotation.y = THREE.MathUtils.lerp(
+            plane.rotation.y,
+            pointerCurrent.x * 0.06 + cameraVelocity * 0.16,
+            0.08
+          );
+        });
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+
+      await createPlanes();
+      updateOverlay(camera.position.z);
+      animate();
+    </script>
+  </body>
+</html>
